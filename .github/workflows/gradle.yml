@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ] # Perbaikan: biasanya ke main, bukan pull_request
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -14,21 +14,30 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up JDK 17
-      uses: actions/setup-java@v4 # Update ke v4 yang lebih stabil
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      # Langkah ini memastikan ANDROID_HOME dan platform android.jar tersedia
+
+    - name: Add d8 to PATH
+      run: |
+        D8_PATH=$(find $ANDROID_HOME/build-tools -name d8 | head -n 1)
+        D8_DIR=$(dirname $D8_PATH)
+        echo "$D8_DIR" >> $GITHUB_PATH
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build Jar
-      # Menggunakan jar atau shadowJar agar file terkumpul di build/libs
-      run: ./gradlew jar 
+    - name: Build with Gradle
+      # Menggunakan 'deploy' sesuai isi build.gradle kamu untuk menggabungkan Desktop + Android
+      run: ./gradlew deploy
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ExtraUtilities-Build
-        # Menggunakan wildcard (*) agar file tetap ketemu meskipun namanya beda sedikit
+        name: ExtraUtilities-Multiplatform
         path: build/libs/*.jar
