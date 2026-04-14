@@ -33,7 +33,7 @@
 ### Expansion beyond the original game
 - Add some very practical equipment outside the original game
 
-## Added extensions
+## Added extensions 
 
 - Turrets
 
